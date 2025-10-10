@@ -3,7 +3,7 @@ import json
 import numpy as np
 
 # Load your multilingual embeddings file
-kb = json.load(open("multilingual_embeddings.json"))
+kb = json.load(open("data/multilingual_embeddings.json"))
 print(f"Loaded {len(kb)} chunks")
 
 # Create the same model for query encoding
@@ -11,6 +11,7 @@ model = SentenceTransformer("intfloat/multilingual-e5-small")
 
 # Example Malay query
 query = "Apa itu RMMA PTA?"
+# query = "How much the PTA system cost?"
 
 # Encode query
 q_vec = model.encode(query, normalize_embeddings=True)

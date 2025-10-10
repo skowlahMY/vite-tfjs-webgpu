@@ -10,6 +10,8 @@ import Basic from './pages/Basic.jsx';
 import QwenPage from './pages/QwenPage.jsx';
 import GranitePage from './pages/GranitePage.jsx';
 import GraniteChatbotPage from './pages/GraniteChatbotPage.jsx';
+import GraniteChatbotAltPage from './pages/GraniteChatbotAltPage.jsx';
+
 // import GraniteRagPage from './pages/GraniteRagPage.jsx';
 
 const router = createBrowserRouter([
@@ -32,6 +34,10 @@ const router = createBrowserRouter([
   {
     path: "/granitechatbot",
     element: <GraniteChatbotPage />,
+  },
+    {
+    path: "/granitechatbotalt",
+    element: <GraniteChatbotAltPage />,
   },
 ]);
 
