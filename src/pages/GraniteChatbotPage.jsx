@@ -2,9 +2,9 @@ import GraniteChatbot from "../components/GraniteChatbot";
 
 export default function GraniteChatbotPage() {
     return (
-        <div>
+
             <GraniteChatbot />
-        </div>
+
     );
 }
 

@@ -11,6 +11,8 @@ import QwenPage from './pages/QwenPage.jsx';
 import GranitePage from './pages/GranitePage.jsx';
 import GraniteChatbotPage from './pages/GraniteChatbotPage.jsx';
 import GraniteChatbotAltPage from './pages/GraniteChatbotAltPage.jsx';
+import GFISPTABotPage from './pages/GFISPTABot.jsx';
+import TryAvatarPage from './pages/TryAvatarPage.jsx';
 
 // import GraniteRagPage from './pages/GraniteRagPage.jsx';
 
@@ -35,9 +37,17 @@ const router = createBrowserRouter([
     path: "/granitechatbot",
     element: <GraniteChatbotPage />,
   },
-    {
+  {
     path: "/granitechatbotalt",
     element: <GraniteChatbotAltPage />,
+  },
+  {
+    path: "/gfisbot",
+    element: <GFISPTABotPage />,
+  },
+  {
+    path: "/try",
+    element: <TryAvatarPage />,
   },
 ]);
 

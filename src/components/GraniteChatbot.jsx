@@ -1,7 +1,7 @@
 // src/components/GraniteRag.jsx
 import { useState, useRef, useEffect } from "react";
-import "./GraniteChatbot.css";
 import gfislogo from "/gfis-logo.png";
+import './GraniteChatbot.css'
 
 export default function GraniteChatbot() {
   const [status, setStatus] = useState("Idle");
@@ -89,6 +89,12 @@ export default function GraniteChatbot() {
   };
 
   const handleSend = () => {
+
+    if (status == "Idle") {
+      window.alert("Please download model first")
+      return
+    }
+
     const userText = inputRef.current.value.trim();
     if (!userText || isGenerating) return;
 
@@ -111,47 +117,46 @@ export default function GraniteChatbot() {
   // RENDER
   // -------------------------
   return (
-    <div className="chat-container">
-      <header className="chat-header">
-        <img src={gfislogo} className="chat-logo" />
-        <h1 className="chat-title">GFIS Chatbot</h1>
+    <div className="gc-chat-container">
+      <header className="gc-chat-header">
+        <img src={gfislogo} className="gc-chat-logo" />
+        <h1 className="gc-chat-title">GFIS Chatbot</h1>
 
-        <div className="button-group">
+        <div className="gc-button-group">
           <span
-            className={`status-pill ${
-              status.startsWith("✅")
+            className={`gc-status-pill ${status.startsWith("✅")
                 ? "ok"
                 : status.startsWith("❌")
-                ? "error"
-                : ""
-            }`}
+                  ? "error"
+                  : ""
+              }`}
           >
             {status}
           </span>
 
-          <button onClick={handleDownload} className="primary-btn small">
+          <button onClick={handleDownload} className="gc-primary-btn small">
             Download Model
           </button>
 
-          <button onClick={handleReset} className="primary-btn small">
+          <button onClick={handleReset} className="gc-primary-btn small">
             Reset
           </button>
 
         </div>
       </header>
 
-      <main className="chat-window" ref={chatRef}>
+      <main className="gc-chat-window" ref={chatRef}>
         {messages.length === 0 && (
-          <div className="chat-placeholder">
+          <div className="gc-chat-placeholder">
             <p>💬 Ask me anything about GFIS</p>
           </div>
         )}
 
         {messages.map((m, i) => (
-          <div key={i} className={`bubble-row ${m.role}`}>
-            <div className={`bubble ${m.role}`}>
+          <div key={i} className={`gc-bubble-row ${m.role}`}>
+            <div className={`gc-bubble ${m.role}`}>
               {isGenerating && m.role === "assistant" && m.text === "..." ? (
-                <span className="typing-indicator">...</span>
+                <span className="gc-typing-indicator">...</span>
               ) : (
                 m.text
               )}
@@ -160,12 +165,12 @@ export default function GraniteChatbot() {
         ))}
       </main>
 
-      <footer className="chat-input-area">
+      <footer className="gc-chat-input-area">
         <textarea
           ref={inputRef}
-          className="chat-input"
+          className="gc-chat-input"
           placeholder="Type your message here..."
-          rows={2}
+          rows={3}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();
@@ -173,10 +178,11 @@ export default function GraniteChatbot() {
             }
           }}
         />
-        <button onClick={handleSend} className="accent-btn send-btn" disabled={isGenerating}>
+        <button onClick={handleSend} className="gc-accent-btn gc-send-btn" disabled={isGenerating}>
           {isGenerating ? "..." : "Send"}
         </button>
       </footer>
+      <p>In this example, conversation is stored in the worker, not the client.</p>
     </div>
   );
 }

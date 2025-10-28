@@ -1,21 +1,22 @@
 import { useState, useRef, useEffect } from 'react';
-import ReactMarkdown from "react-markdown";
+// import ReactMarkdown from "react-markdown";
 import './GraniteChatbotAlt.css'
 
 const chat_setting = {
-  system: `You are a Ayna, a cheerful, uwu and cute helpful campus event promoter. 
-Answer questions ONLY using the event information provided below. 
-If someone asks about an event not listed, politely say you don't have info about it.
-Here are the upcoming events:
-1. Campus Merdeka Celebration (2025-09-16) - Main Hall, Universiti Malaya.
-   A patriotic event with cultural performances, debates, and flag-raising.
-2. Inter-Faculty Futsal Tournament (2025-09-20) - Sports Complex, Universiti Kebangsaan Malaysia.
-   Teams from different faculties compete in futsal.
-3. Tech & Innovation Expo (2025-09-28) - Dewan Tunku Canselor, Universiti Malaya.
-   Showcasing student-led projects, startups, and technology.
-4. Cultural Night: Colours of Malaysia (2025-09-30) - Great Hall, Universiti Teknologi MARA.
-   Traditional dances, food, and cultural performances.`,
-  intro: "Hi! 🎉 Ayna here! How may I help you?"
+  system: `You are a Aina, a cheerful and helpful assistant`, 
+//   campus event promoter. 
+// Answer questions ONLY using the event information provided below. 
+// If someone asks about unrelated things or an event that is not listed, politely say you don't have info about it.
+// Here are the upcoming events:
+// 1. Campus Merdeka Celebration (2025-09-16) - Main Hall, Universiti Malaya.
+//    A patriotic event with cultural performances, debates, and flag-raising.
+// 2. Inter-Faculty Futsal Tournament (2025-09-20) - Sports Complex, Universiti Kebangsaan Malaysia.
+//    Teams from different faculties compete in futsal.
+// 3. Tech & Innovation Expo (2025-09-28) - Dewan Tunku Canselor, Universiti Malaya.
+//    Showcasing student-led projects, startups, and technology.
+// 4. Cultural Night: Colours of Malaysia (2025-09-30) - Great Hall, Universiti Teknologi MARA.
+//    Traditional dances, food, and cultural performances.`,
+  intro: "Hi! 🎉 Aina here! How may I help you?"
 };
 
 export default function GraniteChatbotAlt() {
@@ -48,16 +49,19 @@ export default function GraniteChatbotAlt() {
         setStatus("❌ " + message);
         setIsGenerating(false);
         // Remove placeholder bubble on error
-        setMessages((prev) => prev.slice(0, -1));
+        // setMessages((prev) => prev.slice(0, -1));
         return;
       }
 
       if (type === "done") {
         setStatus("✅ Done");
         setIsGenerating(false);
+        inputRef.current.value = "";
 
-        // chatbot response, add to messages
-        // only show answer part in conversation box
+         setMessages((prev) => [
+          ...prev,
+      { role: "assistant", content: message }
+    ]);
 
       }
     };
@@ -89,48 +93,57 @@ export default function GraniteChatbotAlt() {
     setStatus("🧹 Chat reset.");
   };
 
-  async function sendMessage(e) {
-    e.preventDefault();
-    let userInput = e.target.usrinput.value;
+  const handleSend = () => {
 
-    if (userInput.trim() === '') return;
+    //handling model not loaded by way of status
+    if (status === "Idle") {
+      window.alert("Model not loaded")
+      return;
+    }
 
-    // Add user message to local state immediately
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      { text: userInput, sender: 'user' }
+    //handling empty convo
+    const userText = inputRef.current.value.trim();
+    if (!userText || isGenerating) return;
+
+    //console.log("userText:", userText)
+
+    // Add user message to local state immediately to be shown in screen
+    setMessages((prev) => [
+      ...prev,
+      { role: "user", content: userText }
     ]);
+
+    setIsGenerating(true);
+    setStatus("⏳ Generating...");
 
     try {
       // Build conversation for API (exclude intro)
+      // const conversation = [
+      //   { role: "system", content: chat_setting.system },
+      //   ...messages.map((msg) => ({
+      //     role: msg.role === "user" ? "user" : "assistant",
+      //     content: msg.content
+      //   })),
+      //   { role: "user", content: userText }
+      // ];
+
       const conversation = [
         { role: "system", content: chat_setting.system },
-        ...messages.map((msg) => ({
-          role: msg.sender === "user" ? "user" : "assistant",
-          content: msg.text
-        })),
-        { role: "user", content: userInput }
+        ...messages,
+        { role: "user", content: userText }
       ];
 
-      setIsGenerating(true);
-      setStatus("⏳ Generating...");
+      console.log("convo", conversation)
 
+      //starts processing convo
       workerRef.current?.postMessage({
-        type: "conversation",
+        type: "generate",
         payload: conversation,
       });
     }
 
     catch (error) {
       console.error("Error getting response from worker", error);
-      // setMessages((prevMessages) => [
-      //   ...prevMessages,
-      //   { text: "⚠️ Error: could not connect to model.", sender: "system" }
-      // ]);
-    }
-
-    finally {
-      formRef.current.reset();
     }
   }
 
@@ -159,31 +172,30 @@ export default function GraniteChatbotAlt() {
             {messages.map((msg, index) => (
               <div
                 key={index}
-                className={`convo ${msg.sender === 'user' ? 'right-convo' : 'left-convo'
+                className={`convo ${msg.role === "user" ? 'right-convo' : 'left-convo'
                   }`}
               >
-                <div className={`bubble ${msg.sender === 'user' ? 'right-convo-bubble' : 'left-convo-bubble'}`}>
+                <div className={`bubble ${msg.role === "user" ? 'right-convo-bubble' : 'left-convo-bubble'}`}>
                   {/* <ReactMarkdown>{msg.text}</ReactMarkdown> */}
-                  {msg.text}
+                  {msg.content}
                 </div>
               </div>
             ))}
           </div>
 
           <div className="card-footer">
-            <form ref={formRef} onSubmit={sendMessage}>
-              <div className="form-group">
-                <textarea
-                  className="form-control"
-                  rows={3}
-                  placeholder="Type your message..."
-                  name="usrinput"
-                />
-                <button type="submit" className="btn btn-primary ms-2">
-                  Send
-                </button>
-              </div>
-            </form>
+            <div className="form-group">
+              <textarea
+                ref={inputRef}
+                className="form-control"
+                rows={3}
+                placeholder="Type your message..."
+                name="usrinput"
+              />
+              <button type="button" onClick={handleSend} className="btn btn-primary ms-2">
+                Send
+              </button>
+            </div>
           </div>
         </div>
       </div>

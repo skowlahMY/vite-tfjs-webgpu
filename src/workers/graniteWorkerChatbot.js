@@ -64,14 +64,25 @@ self.onmessage = async (event) => {
     self.postMessage({ type: "status", message: "⏳ Generating..." });
 
     try {
+
+      // ⏱️ Start timing
+      const start = performance.now();
+
       const output = await generator(conversation, {
         max_new_tokens: 512,
         do_sample: false,
       });
 
+      // ⏱️ End timing
+      const end = performance.now();
+      const elapsed = (end - start) / 1000; // seconds
+
       // Extract only the assistant’s reply
       const raw = output?.[0]?.generated_text ?? [];
       let assistantReply = "";
+
+      // token count
+      let tokenCount = 0;
 
       if (Array.isArray(raw)) {
         const last = raw.reverse().find((msg) => msg.role === "assistant");
@@ -83,6 +94,15 @@ self.onmessage = async (event) => {
       } else {
         assistantReply = JSON.stringify(raw);
       }
+
+      // Rough token count = whitespace split (approx)
+      tokenCount = assistantReply.split(/\s+/).length;
+      const tps = (tokenCount / elapsed).toFixed(2);
+      console.log(
+        `🧠 Generated ${tokenCount} tokens in ${elapsed.toFixed(
+          2
+        )}s → ${tps} tokens/s`
+      );
 
       // Add to memory
       conversation.push({ role: "assistant", content: assistantReply });

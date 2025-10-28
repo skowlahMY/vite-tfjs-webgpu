@@ -1,4 +1,4 @@
-import { pipeline, TextStreamer } from "@huggingface/transformers";
+import { pipeline } from "@huggingface/transformers";
 
 let generator = null;
 
@@ -6,6 +6,7 @@ let generator = null;
 self.onmessage = async (event) => {
   const { type, payload } = event.data;
 
+  //this is to download model
   if (type === "download") {
     self.postMessage({ type: "status", message: "Loading model..." });
     try {
@@ -18,37 +19,64 @@ self.onmessage = async (event) => {
     }
   }
 
+  //this is to reset convo
+  if (type === "reset") {
+    console.log("resetting convo")
+    // conversation = [
+    //   {
+    //     role: "system",
+    //     content: "You are a helpful assistant. Answer in the same language as the user.",
+    //   },
+    // ];
+    self.postMessage({ type: "status", message: "🧹 Chat reset." });
+  }
+
+
+  //this is handling user message
   if (type === "generate") {
-    
+
     if (!generator) {
       self.postMessage({ type: "error", message: "Model not loaded yet!" });
       return;
     }
 
-    const messages = [
-      { role: "system", content: "You are a helpful assistant." },
-      { role: "user", content: payload.prompt },
-    ];
+    //running chat to llm
+    console.log("running chat to llm")
+    console.log("payload:", payload)
 
     try {
-      const streamer = new TextStreamer(generator.tokenizer, {
-        skip_prompt: true,
-        skip_special_tokens: true,
-        on_text: (chunk) => {
-          self.postMessage({ type: "stream", message: chunk });
-        },
-      });
 
-      const output = await generator(messages, {
+      const output = await generator(payload, {
         max_new_tokens: 512,
         do_sample: false,
-        streamer,
       });
 
-      self.postMessage({
-        type: "done",
-        message: output[0].generated_text.at(-1).content,
-      });
+      const raw = output?.[0]?.generated_text ?? [];
+      //console.log("raw:", raw)
+
+      let assistantReply = "";
+
+      if (Array.isArray(raw)) {
+        const last = raw.reverse().find((msg) => msg.role === "assistant");
+        assistantReply = last?.content ?? "⚠️ (no response)";
+      }
+      else if (typeof raw === "object" && raw.content) {
+        assistantReply = raw.content;
+      }
+      else if (typeof raw === "string") {
+        assistantReply = raw;
+      }
+      else {
+        assistantReply = JSON.stringify(raw);
+      }
+
+      //console.log("ar:", assistantReply)
+
+      self.postMessage({ type: "done", message: assistantReply });
+      //   self.postMessage({
+      //     type: "done",
+      //     message: output[0].generated_text.at(-1).content,
+      //   });
     } catch (err) {
       self.postMessage({ type: "error", message: err.message });
     }
