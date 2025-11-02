@@ -17,7 +17,9 @@ multilingual embeddings => 20 chunks 224KB json file
 
 ## ONNX models
 
-Using IBM/granite-micro = ~2.3gb model
+Using:
+- IBM onnx-community/granite-4.0-micro-ONNX-web = ~2.3gb model
+- Qwen onnx-community/Qwen3-0.6B-ONNX = ~?gb model
 
 ## Avatar
 
