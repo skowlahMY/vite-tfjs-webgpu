@@ -133,7 +133,7 @@ export default function GraniteChatbotAlt() {
         { role: "user", content: userText }
       ];
 
-      console.log("convo", conversation)
+      //console.log("convo", conversation)
 
       //starts processing convo
       workerRef.current?.postMessage({

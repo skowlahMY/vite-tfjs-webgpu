@@ -10,9 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@huggingface/transformers": "^3.7.5",
-    "pixi-live2d-display": "^0.4.0",
-    "pixi.js": "^8.14.0",
+    "@huggingface/transformers": "^3.7.6",
+    "onnxruntime-web": "^1.23.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-markdown": "^10.1.0",

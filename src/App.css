@@ -46,15 +46,25 @@
 
 .linksbox {
   font-size: large;
-  list-style-type: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .linksboxitem {
   border: 1px solid #fff;
-  background-color: #005a72aa;
   margin: 0.5em;
   border-radius: 1em;
-  padding: 1em;
+  padding: 0.5em;
+  padding-bottom: 1em;
+  min-width: 15em;
+  max-width: 15em;
+  overflow-wrap: normal;
+  max-height: 10em;
+}
+
+.linksboxitem p {
+  font-size: 0.8em;
 }
 
 .linksboxitem a {
